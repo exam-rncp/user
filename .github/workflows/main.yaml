@@ -14,6 +14,8 @@ on:
 
 jobs:
   test:
+    permissions:
+      contents: write
     defaults:
       run:
         working-directory: go/src/github.com/exam-rncp/user
@@ -89,6 +91,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Docker build and push
-        env:
-          IMAGE_TAG: ${{ steps.increment-git-tag.outputs.git-tag }}
+      # - name: Docker build and push
+      #   env:
+      #     IMAGE_TAG: ${{ steps.increment-git-tag.outputs.git-tag }}
