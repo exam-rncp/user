@@ -55,7 +55,7 @@ jobs:
         run: |
           echo "GOPATH: $GOPATH"
           echo "Current directory: $(pwd)"
-          ls go/src/github.com/exam-rncp/user
+          ls
 
       # - name: Install/Downgrade MongoDB to version 3.6
       #   run: |
