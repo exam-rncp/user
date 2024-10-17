@@ -1,0 +1,78 @@
+name: ci
+
+on:
+  push:
+    branches:
+      - main  # run for branches
+    tags:
+      - "*"  # run for tags
+  pull_request:
+    branches:
+      - "*"  # run for branches
+    tags:
+      - "*"  # run for tags
+
+jobs:
+  test:
+    defaults:
+      run:
+        working-directory: go/src/github.com/microservices-demo/user
+    runs-on: ubuntu-latest
+    env:
+      GROUP: f3lin
+      COMMIT: ${{ github.sha }}
+      REPO: user
+      GO_VERSION: 1.7.5
+      GOPATH: /home/runner/work/user/user/go
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          path: go/src/github.com/microservices-demo/user
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+
+      - name: Setup PATH
+        run: echo "${GOPATH}/bin" >> $GITHUB_PATH
+
+      - name: Install dependencies
+        run: make deps 
+
+      - name: Install/Downgrade MongoDB to version 3.6
+        run: |
+          wget http://archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2_amd64.deb
+          sudo dpkg -i libssl1.1_1.1.1f-1ubuntu2_amd64.deb
+          wget -qO - https://pgp.mongodb.com/server-3.6.asc | sudo tee /etc/apt/trusted.gpg.d/mongodb-org-3.6.gpg
+          echo "deb [trusted=yes arch=amd64] https://repo.mongodb.org/apt/ubuntu bionic/mongodb-org/3.6 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-3.6.list
+          sudo apt-get update
+          sudo apt-get install -y --allow-downgrades mongodb-org=3.6.20 mongodb-org-server=3.6.20 mongodb-org-shell=3.6.20 mongodb-org-mongos=3.6.20 mongodb-org-tools=3.6.20 || echo "Error is misleading, it was successfully installed"
+
+      - name: Check if port 8084 is in use and stop the process
+        run: |
+          if sudo lsof -i :8084; then
+            echo "Port 8084 is in use. Stopping the process..."
+            sudo fuser -k 8084/tcp
+          else
+            echo "Port 8084 is free."
+          fi
+          
+      - name: Unit Tests
+        run: make test
+
+      - name: Run Docker Test
+        run: make dockertest
+
+      - name: Automatic Tagging of Releases
+        id: increment-git-tag
+        run: |
+          chmod +x scripts/git_update_tag.sh
+          bash scripts/git_update_tag.sh -v patch
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # - name: Docker build and push
+      #   env:
+      #     IMAGE_TAG: ${{ steps.increment-git-tag.outputs.git-tag }}
