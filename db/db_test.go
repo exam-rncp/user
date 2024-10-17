@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/microservices-demo/user/users"
+	"github.com/exam-rncp/user/users"
 )
 
 var (

@@ -12,11 +12,11 @@ import (
 
 	corelog "log"
 
+	"github.com/exam-rncp/user/api"
+	"github.com/exam-rncp/user/db"
+	"github.com/exam-rncp/user/db/mongodb"
 	"github.com/go-kit/kit/log"
 	kitprometheus "github.com/go-kit/kit/metrics/prometheus"
-	"github.com/microservices-demo/user/api"
-	"github.com/microservices-demo/user/db"
-	"github.com/microservices-demo/user/db/mongodb"
 	stdopentracing "github.com/opentracing/opentracing-go"
 	zipkin "github.com/openzipkin/zipkin-go-opentracing"
 	stdprometheus "github.com/prometheus/client_golang/prometheus"

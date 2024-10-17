@@ -7,10 +7,10 @@ package api
 import (
 	"context"
 
+	"github.com/exam-rncp/user/db"
+	"github.com/exam-rncp/user/users"
 	"github.com/go-kit/kit/endpoint"
 	"github.com/go-kit/kit/tracing/opentracing"
-	"github.com/microservices-demo/user/db"
-	"github.com/microservices-demo/user/users"
 	stdopentracing "github.com/opentracing/opentracing-go"
 )
 
