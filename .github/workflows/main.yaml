@@ -23,7 +23,8 @@ jobs:
     env:
       GROUP: f3lin
       COMMIT: ${{ github.sha }}
-      REPO: user
+      REPO_USER: user
+      REPO_USER_DB: user-db
       GO_VERSION: 1.7.5
       GOPATH: /home/runner/work/usre/usre/go
 
@@ -43,22 +44,6 @@ jobs:
       - name: Install dependencies
         run: make deps 
     
-      # - name: Check if Glide is installed
-      #   run: |
-      #     if command -v glide &> /dev/null; then
-      #       echo "Glide is installed"
-      #       glide --version
-      #     else
-      #       echo "Glide is not installed"
-      #       exit 1
-      #     fi
-
-      # - name: Debug workspace
-      #   run: |
-      #     echo "GOPATH: $GOPATH"
-      #     echo "Current directory: $(pwd)"
-      #     ls
-
       - name: Install/Downgrade MongoDB to version 3.6
         run: |
           wget http://archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2_amd64.deb
@@ -91,6 +76,22 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # - name: Docker build and push
-      #   env:
-      #     IMAGE_TAG: ${{ steps.increment-git-tag.outputs.git-tag }}
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ env.USERNAME }}
+          password: ${{ secrets.DOCKER_PASS }}
+
+      - name: Push user to Docker Hub
+        env:
+          IMAGE_TAG: ${{ steps.increment-git-tag.outputs.git-tag }}
+        run: |
+          docker build -t $GROUP/$REPO_USER:$IMAGE_TAG -f docker/user/Dockerfile-release .
+          docker push $GROUP/$REPO_USER:$IMAGE_TAG
+
+      - name: Push user-db to Docker Hub
+        env:
+          IMAGE_TAG: ${{ steps.increment-git-tag.outputs.git-tag }}
+        run: |
+          docker build -t $GROUP/$REPO_USER_DB:$IMAGE_TAG -f docker/user-db/Dockerfile docker/user-db/
+          docker push $GROUP/$REPO_USER_DB:$IMAGE_TAG
