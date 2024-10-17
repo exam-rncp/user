@@ -60,7 +60,7 @@ jobs:
           fi
           
       - name: Unit Tests
-        run: make test
+        run: glide novendor| xargs go test -v
 
       - name: Run Docker Test
         run: make dockertest
