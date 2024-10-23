@@ -59,8 +59,3 @@ cleandocker:
 	-docker rm -f my$(TESTDB)
 	-docker rm -f $(INSTANCE)-dev
 	-docker rm -f $(OPENAPI)
-
-clean: cleandocker 
-	rm -rf bin
-	rm -rf docker/user/bin
-	rm -rf vendor
