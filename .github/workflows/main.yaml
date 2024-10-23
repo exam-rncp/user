@@ -26,7 +26,7 @@ jobs:
       REPO_USER: user
       REPO_USER_DB: user-db
       GO_VERSION: 1.7.5
-      GOPATH: /home/runner/work/usre/usre/go
+      GOPATH: /home/runner/work/user/user/go
 
     steps:
       - uses: actions/checkout@v4
