@@ -112,8 +112,8 @@ jobs:
           REGISTRY: ${{ steps.login-ecr-public.outputs.registry }}
           IMAGE_TAG: ${{ steps.increment-git-tag.outputs.git-tag }}
         run: |
-          docker tag ${GROUP}/${REPO}:${IMAGE_TAG} ${REGISTRY}/${REPO}:$IMAGE_TAG
-          docker tag ${GROUP}/${REPO_DB}:${IMAGE_TAG} ${REGISTRY}/${REPO_DB}:$IMAGE_TAG
+          docker tag ${GROUP}/${REPO_USER}:${IMAGE_TAG} ${REGISTRY}/${REPO_USER}:$IMAGE_TAG
+          docker tag ${GROUP}/${REPO_USER_DB}:${IMAGE_TAG} ${REGISTRY}/${REPO_USER_DB}:$IMAGE_TAG
 
       - name: Push  User and User-DB Docker image to Amazon ECR Private
         env:
