@@ -27,6 +27,7 @@ jobs:
       REPO_USER_DB: user-db
       GO_VERSION: 1.7.5
       GOPATH: /home/runner/work/user/user/go
+      AWS_REGION: eu-central-1
 
     steps:
       - uses: actions/checkout@v4
@@ -94,3 +95,32 @@ jobs:
         run: |
           docker build -t $GROUP/$REPO_USER_DB:$IMAGE_TAG -f docker/user-db/Dockerfile docker/user-db/
           docker push $GROUP/$REPO_USER_DB:$IMAGE_TAG
+
+      - name: Configure AWS credentials from AWS account
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR Public
+        id: login-ecr-public
+        uses: aws-actions/amazon-ecr-login@v2
+        with:
+          registry-type: public
+
+      - name: Build, tag, and push User docker image to Amazon ECR Public
+        env:
+          REGISTRY: ${{ steps.login-ecr-public.outputs.registry }}
+          IMAGE_TAG: ${{ steps.increment-git-tag.outputs.git-tag }}
+        run: |
+          docker build -t $REGISTRY/$REPO_USER:$IMAGE_TAG  -f docker/user/Dockerfile-release .
+          docker push $REGISTRY/$REPO_USER:$IMAGE_TAG
+
+      - name: Build, tag, and push User-DB docker image to Amazon ECR Public
+        env:
+          REGISTRY: ${{ steps.login-ecr-public.outputs.registry }}
+          IMAGE_TAG: ${{ steps.increment-git-tag.outputs.git-tag }}
+        run: |
+          docker build -t $REGISTRY/$REPO_USER_DB:$IMAGE_TAG -f docker/user-db/Dockerfile docker/user-db/
+          docker push $REGISTRY/$REPO_USER_DB:$IMAGE_TAG
