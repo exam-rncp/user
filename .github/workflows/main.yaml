@@ -107,18 +107,18 @@ jobs:
         id: login-ecr-public
         uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Build, tag, and push User docker image to Amazon ECR Private
+      - name: Tag User and User-DB Docker Image
         env:
           REGISTRY: ${{ steps.login-ecr-public.outputs.registry }}
           IMAGE_TAG: ${{ steps.increment-git-tag.outputs.git-tag }}
         run: |
-          docker build -t $REGISTRY/$REPO_USER:$IMAGE_TAG  -f docker/user/Dockerfile-release .
-          docker push $REGISTRY/$REPO_USER:$IMAGE_TAG
+          docker tag ${GROUP}/${REPO}:${IMAGE_TAG} ${REGISTRY}/${REPO}:$IMAGE_TAG
+          docker tag ${GROUP}/${REPO_DB}:${IMAGE_TAG} ${REGISTRY}/${REPO_DB}:$IMAGE_TAG
 
-      - name: Build, tag, and push User-DB docker image to Amazon ECR Private
+      - name: Push  User and User-DB Docker image to Amazon ECR Private
         env:
           REGISTRY: ${{ steps.login-ecr-public.outputs.registry }}
           IMAGE_TAG: ${{ steps.increment-git-tag.outputs.git-tag }}
         run: |
-          docker build -t $REGISTRY/$REPO_USER_DB:$IMAGE_TAG -f docker/user-db/Dockerfile docker/user-db/
+          docker push $REGISTRY/$REPO_USER:$IMAGE_TAG
           docker push $REGISTRY/$REPO_USER_DB:$IMAGE_TAG
